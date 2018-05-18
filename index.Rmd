@@ -54,10 +54,16 @@ markerIcon <- makeIcon(
 )
 ```
 
+```{r correct_longs}
+locs <- locations %>% mutate( Longitude = abs(Longitude) * -1 )
+```
+
 ```{r map}
-leaflet(locations) %>% 
+leaflet(locs) %>% 
   addTiles() %>% 
   addMarkers(~ Longitude, ~ Latitude, popup = ~ Location, icon=markerIcon )
 ```
+
+
 
 
