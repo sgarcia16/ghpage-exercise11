@@ -5,6 +5,47 @@ date: "May 18, 2018"
 output: html_document
 ---
 
-# Hello world!
+```{r packages}
+  library(leaflet)
+  library(dplyr)
+  library(tidyr)
+  library(ggplot2)
+  library(DT)
+```
 
-you disappoint me.
+
+```{r data}
+esc <- read.csv("data/escapement_counts.csv", stringsAsFactors = FALSE)
+```
+
+```{r median_calc}
+median_esc <- esc %>% 
+  separate(sampleDate, c("Month", "Day", "Year"), sep = "/") %>% 
+  group_by(Species, SASAP.Region, Year, Location) %>% 
+  summarize(escapement = sum(DailyCount)) %>% 
+  group_by(Species) %>% 
+  summarize(median_escapement = median(escapement))
+```
+
+```{r ggplot_flipped_column}
+ggplot(median_esc, aes(Species, median_escapement)) +
+  geom_col() +
+  coord_flip()
+```
+
+```{r locations}
+locations <- esc %>% 
+  distinct(Location, Latitude, Longitude) %>% 
+  drop_na()
+```
+
+```{r dt}
+datatable(locations)
+```
+
+
+```{r map}
+leaflet(locations) %>% 
+  addTiles() %>% 
+  addMarkers(~ Longitude, ~ Latitude, popup = ~ Location)
+```
